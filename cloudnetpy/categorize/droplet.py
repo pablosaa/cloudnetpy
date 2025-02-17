@@ -56,7 +56,7 @@ def find_liquid(
     min_points: int = 3,
     min_top_der: float = 1e-7,
     min_lwp: float = 0,
-    min_alt: float = 100,
+    min_alt: float = 0,      # PSG 100 => 0
 ) -> np.ndarray:
     """Estimate liquid layers from SNR-screened attenuated backscatter.
 

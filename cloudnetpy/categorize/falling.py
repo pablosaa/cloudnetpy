@@ -39,8 +39,9 @@ def find_falling_hydrometeors(
         falling_from_radar,
         is_liquid,
     )
+    falling_from_lidar = _find_falling_from_lidar(obs, is_liquid)   # PSG added 
     cold_aerosols = _find_cold_aerosols(obs, is_liquid)
-    return falling_from_radar_fixed | cold_aerosols
+    return falling_from_radar_fixed | falling_from_lidar | cold_aerosols  # PSG added: falling_from_lidar
 
 
 def _find_falling_from_radar(obs: ClassData, is_insects: np.ndarray) -> np.ndarray:
@@ -49,6 +50,12 @@ def _find_falling_from_radar(obs: ClassData, is_insects: np.ndarray) -> np.ndarr
     no_insects = ~is_insects
     return is_z & no_clutter & no_insects
 
+# = PSG added from older cloudnetpy version 1.3
+def _find_falling_from_lidar(obs: ClassData, is_liquid: np.ndarray) -> np.ndarray:
+    is_beta = ~obs.beta.mask
+    strong_beta_limit = 2e-6
+    return is_beta & (obs.beta.data > strong_beta_limit) & ~is_liquid
+# = End of PSG adding.
 
 def _find_cold_aerosols(obs: ClassData, is_liquid: np.ndarray) -> np.ndarray:
     """Lidar signals which are in colder than the threshold temperature

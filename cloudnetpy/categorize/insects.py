@@ -13,7 +13,7 @@ def find_insects(
     obs: ClassData,
     melting_layer: np.ndarray,
     liquid_layers: np.ndarray,
-    prob_lim: float = 0.8,
+    prob_lim: float = 0.9,  # PSG: 0.8 => 0.9
 ) -> tuple[np.ndarray, np.ndarray]:
     """Returns insect probability and boolean array of insect presence.
 
@@ -73,7 +73,7 @@ def _get_probabilities(obs: ClassData) -> dict:
         "sldr": fun(obs.sldr, -25, 5) if hasattr(obs, "sldr") else None,
         "temp_loose": fun(obs.tw, 268, 2),
         "temp_strict": fun(obs.tw, 274, 1),
-        "v": fun(smooth_v, -3.5, 2),
+        "v": fun(smooth_v, -2.5, 2),   # PSG: -3.5 => -2.5 (as in ver 1.3)
         "lwp": utils.transpose(fun(lwp_interp, 0.15, 0.05, invert=True)),
         "v_sigma": fun(obs.v_sigma, 0.01, 0.1),
     }
@@ -90,7 +90,7 @@ def _get_smoothed_v(
 def _calc_prob_from_ldr(prob: dict) -> np.ndarray:
     """This is the most reliable proxy for insects."""
     if prob["ldr"] is not None:
-        return prob["ldr"] * prob["temp_loose"]
+        return prob["z_weak"] * prob["ldr"] * prob["temp_loose"]  # PSG: added prob[z_weak]* (as in ver 1.3)
     if (
         prob["sldr"] is not None
     ):  # Strong SLDR values are probably insects, weak CAN be but not necessarily
